@@ -1,0 +1,624 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8" />
+        <title>mTop</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta content="Sample Python Application for MongoDB Developer eWorkshop" name="description" />
+        <meta content="MongoDB SA Team" name="author" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+        <!-- App favicon -->
+        <link rel="shortcut icon" href="https://www.mongodb.com/assets/images/global/favicon.ico">
+
+        <!-- App css -->
+        <link href="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <link href="./assets/css/icons.css" rel="stylesheet" type="text/css" />
+        <link href="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/css/metisMenu.min.css" rel="stylesheet" type="text/css" />
+        <link href="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/plugins/daterangepicker/daterangepicker.css" rel="stylesheet" type="text/css" />
+        <link href="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/css/app.min.css" rel="stylesheet" type="text/css" />
+
+        <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+
+        <style>
+
+        .page-wrapper {
+          margin: 10px !important;
+        }
+
+        .locationFilterForm {
+          max-width: 220px;
+          padding: 0px;
+          height: 27px;
+          font-size: 12px;
+          text-align: center;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        .mtop-bar{
+          display: flex;
+        }
+
+        .mtop-title {
+         margin: 9px 0px 0px 5px;
+        }
+
+        .mtop-map{
+          min-height: 600px;
+        }
+
+        .mtop-location-list{
+          min-height: 685px;
+        }
+
+        .mtop-thumb{
+          max-width : 100px;
+          height : auto;
+        }
+
+        .mtop-link-panel{
+          display: inline-flex;
+          width: 100%;
+        }
+
+        .mtop-link-panel-item{
+          margin: 0px 10px;
+          margin-top: auto;
+          margin-bottom: auto;
+        }
+
+        .icon-demo-content {
+          font-size: 15px;
+          margin: 0 auto 5px;
+          color: #7081b9;
+        }
+
+        .number-demo-content {
+          font-size: 20px;
+          color: #7081b9;
+          font-weight: bold;
+        }
+
+        .map-number-icon {
+            background-image: url("./assets/images/leaf_withshadow.png");
+            background-size: 52px 65px;
+            background-repeat: no-repeat;
+            margin: 0 auto;
+            text-align:center;
+            color:white;
+            font-weight: bold;
+            font-size: 16px;
+            padding: 16px 6px 0px 0px;
+        }
+
+        .map-number-icon:hover {
+            background-image: url("./assets/images/leaf_withshadow_hover.png");
+            background-size: 52px 65px;
+            background-repeat: no-repeat;
+        }
+
+        .map-icon-notactive {
+          background-image: url("./assets/images/leaf_withshadow.png");
+        }
+
+        .map-icon-active {
+          background-image: url("./assets/images/leaf_withshadow_hover.png");
+        }
+
+        .mtop-form-label-small{
+            font-size: 12px;
+            text-align: left;
+            margin: 7px 7px 0px 2px;
+        }
+
+        .mtop-search-results-title{
+            margin: 7px 15px;
+        }
+
+        .numberFilterForm {
+            text-align: right;
+        }
+
+        .custom-select {
+            height: calc(1.1em + .75rem + 2px);
+            padding: .125rem 1.75rem .375rem .75rem;
+        }
+
+        .property-panel-text {
+          min-height: 50px;
+        }
+
+        .mtop-property-panel-thumb-panel{
+          position: absolute;
+          top: 50%;
+          height: 50%;
+          width: 100%;
+          margin: 16px 0px 0px -16px;
+          text-align: center;
+      }
+
+      .mtop-property-panel-thumb-panel-bg {
+          background-color: white;
+          opacity: 0.75;
+          width: 100%;
+          height: 40%;
+          position: absolute;
+          top: 60%;
+      }
+
+      .thumb-number-icon {
+          background-image: url("./assets/images/leaf_withshadow.png");
+          background-size: 52px 65px;
+          background-repeat: no-repeat;
+          margin: 0 auto;
+          text-align: center;
+          color: white;
+          font-weight: bold;
+          font-size: 16px;
+          padding: 19px 0px 0px 10px;
+          background-position-x: 75%;
+          text-align: center;
+          height: 100%;
+          width: 100%;
+      }
+
+      .thumb-number-icon:hover {
+          background-image: url("./assets/images/leaf_withshadow_hover.png");
+          background-size: 52px 65px;
+          background-repeat: no-repeat;
+      }
+
+      .mtop-popuppanel {
+        text-align: center;
+        margin: 10px auto;
+      }
+
+      .link-white{
+        color: #FFFFFF !important;
+      }
+
+      .mtop-bt-search {
+        padding: .245rem .75rem;
+        line-height: 1.4;
+        margin: auto auto;
+        top: 10px;
+      }
+
+
+        </style>
+
+    </head>
+
+    <body>
+        <div class="page-wrapper">
+            <!-- Top Bar Start -->
+            <div class="topbar">
+                <!-- Navbar -->
+                <nav class="navbar-custom">
+                    <ul class="list-unstyled topbar-nav float-right mb-0">
+
+                        <li class="dropdown">
+                            <a class="nav-link dropdown-toggle waves-effect waves-light nav-user" data-toggle="dropdown" href="#" role="button"
+                                aria-haspopup="false" aria-expanded="false">
+                                <span class="ml-1 nav-user-name hidden-sm">User</span>
+                                <img src="https://webimages.mongodb.com/_com_assets/cms/Icons_64x64_Realm_User%20Authorization-qtcqe098w6.svg" alt="profile-user" class="rounded-circle thumb-xs" />
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a class="dropdown-item" href="#"><i data-feather="user" class="align-self-center icon-xs icon-dual mr-1"></i> Profile</a>
+                                <a class="dropdown-item" href="#"><i data-feather="settings" class="align-self-center icon-xs icon-dual mr-1"></i> Settings</a>
+                                <div class="dropdown-divider mb-0"></div>
+                                <a class="dropdown-item" href="#"><i data-feather="power" class="align-self-center icon-xs icon-dual mr-1"></i> Logout</a>
+                            </div>
+                        </li>
+                    </ul><!--end topbar-nav-->
+
+                    <ul class="list-unstyled topbar-nav mb-0">
+                        <li>
+                            <button class="nav-link button-menu-mobile">
+                                <i data-feather="menu" class="align-self-center topbar-icon"></i>
+                            </button>
+                        </li>
+                        <li class="creat-btn mtop-bar">
+                          <!-- LOGO -->
+                          <div class="brand">
+                              <a href="index.html" class="logo">
+                                  <span>
+                                      <svg height="45" width="22" viewBox="0 0 13 26"><path d="M11.7 10.4C10.3 4.3 7.4 2.7 6.7 1.6 6.3 1.1 6.1 0.5 5.8 0 5.8 0.5 5.7 0.9 5.3 1.3 4.3 2.1 0.4 5.3 0 12.2-0.3 18.7 4.8 22.6 5.5 23 6 23.3 6.7 23 7 22.8 9.4 21.1 12.8 16.7 11.7 10.4" fill="#10AA50"></path><path d="M6 19.5C5.8 21.1 5.7 22 5.4 22.9 5.4 22.9 5.6 24.4 5.8 26L6.3 26C6.5 24.9 6.7 23.8 6.9 22.7 6.2 22.3 6 20.9 6 19.5Z" fill="#B8C4C2"></path><path d="M7 22.8L7 22.8C6.3 22.4 6.1 20.9 6.1 19.6 6.3 17.3 6.3 15 6.3 12.6 6.2 11.4 6.3 1.5 6 0 6.2 0.5 6.4 1 6.7 1.4 7.4 2.6 10.3 4.2 11.7 10.3 12.8 16.6 9.5 21.1 7 22.8Z" fill="#12924F"></path></svg>
+                                  </span>
+                              </a>
+                          </div>
+                          <div class="mtop-title">
+                              <h4>mTop</h4>
+                          </div>
+                          <!--end logo-->
+                            <div class="nav-link">
+                                <a class=" btn btn-sm btn-soft-primary" href="#" role="button"><i class="fas fa-plus mr-2"></i>App V1</a>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+                <!-- end navbar-->
+            </div>
+            <!-- Top Bar End -->
+
+            <!-- Page Content-->
+            <div class="page-content">
+                <div class="container-fluid">
+                    <!-- Page-Title -->
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="page-title-box">
+                                <div class="row">
+                                    <div class="col">
+                                        <h4 class="page-title">Find Location</h4>
+                                        <ol class="breadcrumb">
+                                            <li class="breadcrumb-item"><a href="javascript:void(0);">Locations</a></li>
+                                            <li class="breadcrumb-item active" id="label-city-name">{{searchMetadata[0].city}}</li>
+                                        </ol>
+                                    </div><!--end col-->
+                                    <div class="col-auto align-self-center">
+                                    </div><!--end col-->
+                                </div><!--end row-->
+                            </div><!--end page-title-box-->
+                        </div><!--end col-->
+                    </div><!--end row-->
+                    <!-- end page title end breadcrumb -->
+
+                    <div class="row">
+                        <div class="col-lg-6">
+
+                          <div class="row">
+                              <div class="col-3">
+                                  <div class="card">
+                                      <div class="card-body">
+                                          <div class="row align-items-center">
+                                              <div class="col text-center">
+                                                  <span class="h4">
+                                                    <select class="custom-select" id="filter-city" width="20">
+                                                      <option selected="" value="{{searchMetadata[0].city}}">{{searchMetadata[0].city}}</option>
+                                                      <option value="New York">New York</option>
+                                                      <option value="Porto">Porto</option>
+                                                      <option value="Maui">Maui</option>
+                                                      <option value="Rio de Janeiro">Rio de Janeiro</option>
+                                                      <option value="Sydney">Sydney</option>
+                                                      <option value="Barcelona">Barcelona</option>
+                                                    </select>
+                                                  </span>
+                                                  <h6 class="text-uppercase text-muted mt-2 m-0">City/Location</h6>
+                                              </div><!--end col-->
+                                          </div> <!-- end row -->
+                                      </div><!--end card-body-->
+                                  </div> <!--end card-body-->
+                              </div><!--end col-->
+                              <div class="col-4">
+                                  <div class="card">
+                                      <div class="card-body">
+                                          <div class="row align-items-center">
+                                              <div class="col text-center">
+                                                  <span style="display: inline-flex;">
+                                                    <span class="mtop-form-label-small">From</span>
+                                                    <input class="form-control locationFilterForm numberFilterForm" type="number" value="{{searchMetadata[0].pricefrom}}" id="filter-pricefrom" size="4" width="8">&nbsp
+                                                    <span class="mtop-form-label-small">To</span>
+                                                    <input class="form-control locationFilterForm numberFilterForm" type="number" value="{{searchMetadata[0].priceto}}" id="filter-priceto" size="5" width="10">
+                                                  </span>
+                                                  <h6 class="text-uppercase text-muted mt-2 m-0">Price Range</h6>
+                                              </div><!--end col-->
+                                          </div> <!-- end row -->
+                                      </div><!--end card-body-->
+                                  </div> <!--end card-body-->
+                              </div><!--end col-->
+
+                              <div class="col-3">
+                                  <div class="card">
+                                      <div class="card-body">
+                                          <div class="row align-items-center">
+                                              <div class="col text-center">
+                                                  <span class="h4"><input class="form-control locationFilterForm" type="text" value="{{searchMetadata[0].amenities}}" id="filter-amenities" size="4"></span>
+                                                  <h6 class="text-uppercase text-muted mt-2 m-0">Amenities</h6>
+                                              </div><!--end col-->
+                                          </div> <!-- end row -->
+                                      </div><!--end card-body-->
+                                  </div> <!--end card-body-->
+                              </div><!--end col-->
+
+
+                              <div class="col-2">
+                                  <div class="card">
+                                      <div class="card-body">
+                                          <div class="row align-items-center">
+                                              <div class="col text-center">
+                                                  <button type="button" class="btn btn-primary waves-effect waves-light __web-inspector-hide-shortcut__ mtop-bt-search" onClick="javascript:runSearch();">
+                                                    <i class="mdi mdi-check-all mr-2"></i>Search
+                                                  </button>
+                                                  <h6 class="text-uppercase text-muted mt-2 m-0">&nbsp;</h6>
+                                              </div><!--end col-->
+                                          </div> <!-- end row -->
+                                      </div><!--end card-body-->
+                                  </div> <!--end card-->
+                              </div><!--end col-->
+                          </div><!--end row-->
+
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="">
+                                        <div id="map" class="mtop-map"></div>
+                                    </div>
+                                </div><!--end card-body-->
+                            </div><!--end card-->
+
+                        </div><!-- end col-->
+
+                        <div class="col-lg-6">
+                          <div class="mtop-location-list">
+                              <div style="display:flex;">
+                                <span class="h4 mtop-search-results-title">
+                                  Browse Search Results
+                                  &nbsp;<span id="pagination-current">(1-10 of {{searchMetadata[0].totalRecords}})</span>
+                                </span>
+                                <nav aria-label="Search Result Pagination">
+                                  <ul class="pagination" id="pagination"></ul><!--end pagination-->
+                              </nav>
+                              </div>
+                              <div id="mtop-location-list">
+                                {% for property in propertyList[0].properties %}
+                                  <div class="property-panel" id="property-panel-{{loop.index}}">
+                                    <div class="col-md-12">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="ribbon1 rib1-success">
+                                                    <span class="text-white text-center rib1-success">{{property.price}}</span>
+                                                </div><!--end ribbon-->
+                                                <div class="row">
+                                                    <div class="col-auto mtop-property-panel-thumb">
+                                                        <img src="{{property.images.picture_url}}" alt="Property" height="150" class="mtop-thumb">
+                                                        <a href="#" onmouseover="javascript:toggleIcon({{loop.index}},true);" onmouseout="javascript:toggleIcon({{loop.index}},false)">
+                                                          <div class="mtop-property-panel-thumb-panel-bg"></div>
+                                                          <div class="mtop-property-panel-thumb-panel">
+                                                              <div class="thumb-number-icon" id="mtop-map-icon-{{loop.index}}">{{loop.index}}</div>
+                                                          </div>
+                                                        </a>
+                                                    </div><!--end col-->
+                                                    <div class="col align-self-center">
+                                                        <p class="font-18 font-weight-semibold mb-2">{{property.name}}</p>
+                                                        <p class="text-muted property-panel-text">{{property.summary}}</p>
+                                                        <div class="mtop-link-panel">
+                                                          <div class="mtop-link-panel-item"><a href="/viewProperty?id={{property._id}}" class="btn btn-info btn-sm">View Property</a></div>
+                                                          <div class="mtop-link-panel-item"><a href="#" class="btn btn-success btn-sm" data-toggle="modal" data-target="#booknowModal">Book Now</a></div>
+                                                          <div class="mtop-link-panel-item number-demo-content"> {{property.beds}}
+                                                            <i class="fas fa-bed icon-demo-content" title="Beds"></i>
+                                                          </div>
+                                                          <div class="mtop-link-panel-item number-demo-content"> {{property.accommodates}}
+                                                            <i class="fas fa-user-friends icon-demo-content" title="Accommodates"></i>
+                                                          </div>
+                                                          <div class="mtop-link-panel-item number-demo-content"> {{property.bathrooms}}
+                                                            <i class="fas fa-bath icon-demo-content" title="Bathrooms"></i>
+                                                          </div>
+                                                        </div>
+                                                    </div><!--end col-->
+                                                </div> <!--end row-->
+                                            </div><!--end card-body-->
+                                        </div><!--end card-->
+                                    </div>
+                                  </div>
+                                {% endfor %}
+                              </div>
+                          </div><!--end card-body-->
+
+                        </div><!-- end col-->
+                    </div><!--end row-->
+
+                    <div class="row">
+
+                    </div><!--end row-->
+
+                </div><!-- container -->
+
+                <footer class="footer text-center text-sm-left">
+                    &copy; 2020 MongoDB <span class="d-none d-sm-inline-block float-right"></span>
+                </footer><!--end footer-->
+            </div>
+            <!-- end page content -->
+        </div>
+        <!-- end page-wrapper -->
+
+        <!-- Book now modal, until I decide to write the code to implement it -->
+        <div class="modal fade show" id="booknowModal" tabindex="-1" role="dialog" aria-labelledby="booknowModalLabel" aria-modal="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-success">
+                        <h6 class="modal-title m-0 text-white" id="booknowModalLabel">Coming Soon</h6>
+                        <button type="button" class="close " data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true"><i class="la la-times text-white"></i></span>
+                        </button>
+                    </div><!--end modal-header-->
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-lg-3 text-center align-self-center">
+                              <div class="">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map icon-dual"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon><line x1="8" y1="2" x2="8" y2="18"></line><line x1="16" y1="6" x2="16" y2="22"></line></svg>
+                              </div>
+                            </div><!--end col-->
+                            <div class="col-lg-9">
+                                <h5>Book Now - Coming Soon</h5>
+                                <span class="badge bg-soft-secondary">Current Beta v0.8</span>
+                                <small class="text-muted ml-2">Oct 2021</small>
+                                <ul class="mt-3 mb-0">
+                                    <li>Please Check Back Soon</li>
+                                </ul>
+                            </div><!--end col-->
+                        </div><!--end row-->
+                    </div><!--end modal-body-->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success btn-sm" data-dismiss="modal">Close Panel</button>
+                    </div><!--end modal-footer-->
+                </div><!--end modal-content-->
+            </div><!--end modal-dialog-->
+        </div>
+
+
+
+
+        <!-- jQuery  -->
+        <script src="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/js/jquery.min.js"></script>
+        <script src="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/js/bootstrap.bundle.min.js"></script>
+        <script src="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/js/metismenu.min.js"></script>
+        <script src="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/js/waves.js"></script>
+        <script src="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/js/feather.min.js"></script>
+        <script src="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/js/simplebar.min.js"></script>
+        <script src="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/js/moment.js"></script>
+        <script src="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/plugins/daterangepicker/daterangepicker.js"></script>
+
+        <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+
+        <script type="text/javascript">
+          var totalPages = {{searchMetadata[0].totalPages}};
+          var totalRecords = {{searchMetadata[0].totalRecords}};
+          var coordinates = {{searchMetadata[0].coordinates}};
+          console.log('===> Map Coordinates: ' + JSON.stringify(coordinates));
+          var map = L.map('map').setView([coordinates[1],coordinates[0]], 15);
+
+          // {s}, {z}, {x} and {y} are placeholders for map tiles
+          // {x} and {y} are the x/y of where you are on the map
+          // {z} is the zoom level
+          // {s} is the subdomain of cartodb
+            var layer = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="http://cartodb.com/attributions">CartoDB</a>'
+          });
+
+          // Now add the layer onto the map
+          map.addLayer(layer);
+
+          i = 0
+          {% for property in propertyList[0].properties %}
+            i = i + 1
+            var coordinates = {{property.address.location.coordinates}}
+            var popUpPanel = "<strong>{{property.name}}</strong>";
+            popUpPanel += "<div class='mtop-link-panel'>";
+            popUpPanel += "  <div class='mtop-link-panel-item mtop-popuppanel'><a href='/viewProperty?id={{property._id}}' class='btn btn-info btn-sm link-white'>View Property</a></div>";
+            popUpPanel += "</div>";
+            var markerId = "map-marker-" + i;
+            var mongoIcon = L.divIcon({
+                className: 'map-number-icon',
+                iconUrl: './assets/images/ico_leaf.png',
+                shadowUrl: './assets/images/ico_leaf_shadow.png',
+                iconSize:     [38, 95], // size of the icon
+                shadowSize:   [50, 64], // size of the shadow
+                iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+                shadowAnchor: [4, 62],  // the same for the shadow
+                popupAnchor:  [-3, -76], // point from which the popup should open relative to the iconAnchor
+                html: i
+            });
+            //L.marker([coordinates[1], coordinates[0]], {icon: mongoIcon}).addTo(map).bindPopup(popUpPanel).openPopup();
+            L.marker([coordinates[1], coordinates[0]], {icon: mongoIcon, title : markerId}).addTo(map).bindPopup(popUpPanel);
+          {% endfor %}
+
+
+          function renderPropertyList() {
+            // Hide all Panels
+            hideAllPanels();
+
+            // Show first 20 divs - do this to animate them
+            slidePropertyPanels(1,10);
+          }
+
+          function hideAllPanels() {
+            for (var i = 1; i <= totalRecords; i++) {
+              var divname = "#property-panel-"+i;
+              $(divname).hide();
+            }
+          }
+
+          function slidePropertyPanels(start,end) {
+            for(var i = start; i <= end; i++) {
+              var divname = "#property-panel-"+i;
+              $(divname).show();
+            }
+          }
+
+          function loadPage(pageNumber) {
+            // Page 1: 1-10, Page 2: 11-20, Page 3:20-30, Page 4: 30-40
+            var end = pageNumber * 10;
+            var initial = (end - 10) + 1;
+            if (initial === 0 ) { initial = 1; }
+            if (end > totalRecords) { end = totalRecords; }
+            hideAllPanels();
+            slidePropertyPanels(initial, end);
+            renderPagination(pageNumber);
+
+            var counterhtml = "(" + initial + "-" + end + " of " + totalRecords + ")";
+            $("#pagination-current").html(counterhtml);
+          }
+
+          function renderPagination(currentPage) {
+            var previousPage = currentPage -1;
+            var nextPage = currentPage + 1;
+            var htmloutput = "";
+            if (currentPage === 1)
+              {
+                htmloutput += "<li class='page-item disabled'><a class='page-link' href='#' aria-label='Previous'>";
+                htmloutput += "<span aria-hidden='true'>«</span><span class='sr-only'>Previous</span></a></li>";
+              }
+            else {
+              htmloutput += "<li class='page-item'><a class='page-link' href='javascript:loadPage(" + previousPage + ")' aria-label='Previous'>";
+              htmloutput += "<span aria-hidden='false'>«</span><span class='sr-only'>Previous</span></a></li>";
+            };
+            for (var x = 1; x <= totalPages; x++) {
+              htmloutput += "<li class='page-item ";
+              if (x === currentPage) { htmloutput += "active"; }
+              htmloutput += "'><a class='page-link' href='"
+              if (x === currentPage) { htmloutput += "#"; }
+              else { htmloutput += "javascript:loadPage(" + x + ");";}
+              htmloutput += "'>" + x + "</a></li>";
+            }
+            if (currentPage === totalPages)
+            {
+                htmloutput += "<li class='page-item disabled'><a class='page-link' href='#' aria-label='Next'>";
+                htmloutput += "<span aria-hidden='true'>»</span><span class='sr-only'>Next</span></a></li>";
+            }
+            else {
+              htmloutput += "<li class='page-item '><a class='page-link' href='javascript:loadPage(" + nextPage + ")' aria-label='Next'>";
+              htmloutput += "<span aria-hidden='false'>»</span><span class='sr-only'>Next</span></a></li>";
+            }
+
+            $("#pagination").html(htmloutput);
+          }
+
+          function toggleIcon(iconNumber, isActive) {
+            var markerId = "map-marker-" + iconNumber;
+            if (isActive) {
+              $("div[title=\""+markerId+"\"]").removeClass("map-icon-notactive");
+              $("div[title=\""+markerId+"\"]").addClass("map-icon-active");
+            }
+            else {
+              $("div[title=\""+markerId+"\"]").removeClass("map-icon-active");
+              $("div[title=\""+markerId+"\"]").addClass("map-icon-notactive");
+            }
+
+          }
+
+          function runSearch() {
+            var searchUrl = "/mtop";
+            var city = $("#filter-city").val();
+            var pricefrom = $("#filter-pricefrom").val();
+            var priceto = $("#filter-priceto").val();
+            var amenities = $("#filter-amenities").val();
+            searchUrl += "?city="+city+"&pricefrom="+pricefrom+"&priceto="+priceto+"&amenities="+amenities;
+            window.location = searchUrl;
+          }
+
+
+          $(document).ready(function() {
+            renderPagination(1);
+            renderPropertyList();
+          });
+
+
+        </script>
+
+
+    </body>
+
+</html>

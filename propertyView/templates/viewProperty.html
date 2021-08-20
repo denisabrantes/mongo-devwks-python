@@ -1,0 +1,547 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8" />
+        <title>mTop</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <meta content="Sample Python Application for MongoDB Developer eWorkshop" name="description" />
+        <meta content="MongoDB SA Team" name="author" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+        <!-- App favicon -->
+        <link rel="shortcut icon" href="https://www.mongodb.com/assets/images/global/favicon.ico">
+
+        <!-- App css -->
+        <link href="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <link href="../mtop/assets/css/icons.css" rel="stylesheet" type="text/css" />
+        <link href="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/css/metisMenu.min.css" rel="stylesheet" type="text/css" />
+        <link href="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/plugins/daterangepicker/daterangepicker.css" rel="stylesheet" type="text/css" />
+        <link href="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/plugins/rating/themes/rating.css" rel="stylesheet" type="text/css" />
+        <link href="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/css/app.min.css" rel="stylesheet" type="text/css" />
+
+        <style>
+
+        .page-wrapper {
+          margin: 10px !important;
+        }
+
+        .locationFilterForm {
+          max-width: 220px;
+          padding: 0px;
+          height: 27px;
+          font-size: 12px;
+          text-align: center;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        .mtop-bar{
+          display: flex;
+        }
+
+        .mtop-title {
+         margin: 9px 0px 0px 5px;
+        }
+
+        .mtop-map{
+          min-height: 600px;
+        }
+
+        .mtop-location-list{
+          min-height: 685px;
+        }
+
+        .mtop-thumb{
+          max-width : 100px;
+          height : auto;
+        }
+
+        .mtop-link-panel{
+          display: inline-flex;
+          width: 100%;
+        }
+
+        .mtop-link-panel-item{
+          margin: 0px 10px;
+          margin-top: auto;
+          margin-bottom: auto;
+        }
+
+        .icon-demo-content {
+          font-size: 15px;
+          margin: 0 auto 5px;
+          color: #7081b9;
+        }
+
+        .number-demo-content {
+          font-size: 20px;
+          color: #7081b9;
+          font-weight: bold;
+        }
+
+        .map-number-icon {
+            background-image: url("./assets/images/leaf_withshadow.png");
+            background-size: 52px 65px;
+            background-repeat: no-repeat;
+            margin: 0 auto;
+            text-align:center;
+            color:white;
+            font-weight: bold;
+            font-size: 16px;
+            padding: 16px 6px 0px 0px;
+        }
+
+        .map-number-icon:hover {
+            background-image: url("./assets/images/leaf_withshadow_hover.png");
+            background-size: 52px 65px;
+            background-repeat: no-repeat;
+        }
+
+        .map-icon-notactive {
+          background-image: url("./assets/images/leaf_withshadow.png");
+        }
+
+        .map-icon-active {
+          background-image: url("./assets/images/leaf_withshadow_hover.png");
+        }
+
+        .mtop-form-label-small{
+            font-size: 12px;
+            text-align: left;
+            margin: 7px 7px 0px 2px;
+        }
+
+        .mtop-search-results-title{
+            margin: 7px 15px;
+        }
+
+        .numberFilterForm {
+            text-align: right;
+        }
+
+        .custom-select {
+            height: calc(1.1em + .75rem + 2px);
+            padding: .125rem 1.75rem .375rem .75rem;
+        }
+
+        .property-panel-text {
+          min-height: 50px;
+        }
+
+        .mtop-property-panel-thumb-panel{
+          position: absolute;
+          top: 50%;
+          height: 50%;
+          width: 100%;
+          margin: 16px 0px 0px -16px;
+          text-align: center;
+      }
+
+      .mtop-property-panel-thumb-panel-bg {
+          background-color: white;
+          opacity: 0.75;
+          width: 100%;
+          height: 40%;
+          position: absolute;
+          top: 60%;
+      }
+
+      .thumb-number-icon {
+          background-image: url("./assets/images/leaf_withshadow.png");
+          background-size: 52px 65px;
+          background-repeat: no-repeat;
+          margin: 0 auto;
+          text-align: center;
+          color: white;
+          font-weight: bold;
+          font-size: 16px;
+          padding: 19px 0px 0px 10px;
+          background-position-x: 75%;
+          text-align: center;
+          height: 100%;
+          width: 100%;
+      }
+
+      .thumb-number-icon:hover {
+          background-image: url("./assets/images/leaf_withshadow_hover.png");
+          background-size: 52px 65px;
+          background-repeat: no-repeat;
+      }
+
+      .amenities-list {
+        -moz-column-count: 4;
+        -moz-column-gap: 20px;
+        -webkit-column-count: 4;
+        -webkit-column-gap: 20px;
+        column-count: 4;
+        column-gap: 20px;
+      }
+
+      .mtop-like-counter {
+        margin-top: 1px;
+      }
+
+
+        </style>
+
+    </head>
+
+    <body>
+        <div class="page-wrapper">
+            <!-- Top Bar Start -->
+            <div class="topbar">
+                <!-- Navbar -->
+                <nav class="navbar-custom">
+                    <ul class="list-unstyled topbar-nav float-right mb-0">
+
+                        <li class="dropdown">
+                            <a class="nav-link dropdown-toggle waves-effect waves-light nav-user" data-toggle="dropdown" href="#" role="button"
+                                aria-haspopup="false" aria-expanded="false">
+                                <span class="ml-1 nav-user-name hidden-sm">User</span>
+                                <img src="https://webimages.mongodb.com/_com_assets/cms/Icons_64x64_Realm_User%20Authorization-qtcqe098w6.svg" alt="profile-user" class="rounded-circle thumb-xs" />
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right">
+                                <a class="dropdown-item" href="#"><i data-feather="user" class="align-self-center icon-xs icon-dual mr-1"></i> Profile</a>
+                                <a class="dropdown-item" href="#"><i data-feather="settings" class="align-self-center icon-xs icon-dual mr-1"></i> Settings</a>
+                                <div class="dropdown-divider mb-0"></div>
+                                <a class="dropdown-item" href="#"><i data-feather="power" class="align-self-center icon-xs icon-dual mr-1"></i> Logout</a>
+                            </div>
+                        </li>
+                    </ul><!--end topbar-nav-->
+
+                    <ul class="list-unstyled topbar-nav mb-0">
+                        <li>
+                            <button class="nav-link button-menu-mobile">
+                                <i data-feather="menu" class="align-self-center topbar-icon"></i>
+                            </button>
+                        </li>
+                        <li class="creat-btn mtop-bar">
+                          <!-- LOGO -->
+                          <div class="brand">
+                              <a href="index.html" class="logo">
+                                  <span>
+                                      <svg height="45" width="22" viewBox="0 0 13 26"><path d="M11.7 10.4C10.3 4.3 7.4 2.7 6.7 1.6 6.3 1.1 6.1 0.5 5.8 0 5.8 0.5 5.7 0.9 5.3 1.3 4.3 2.1 0.4 5.3 0 12.2-0.3 18.7 4.8 22.6 5.5 23 6 23.3 6.7 23 7 22.8 9.4 21.1 12.8 16.7 11.7 10.4" fill="#10AA50"></path><path d="M6 19.5C5.8 21.1 5.7 22 5.4 22.9 5.4 22.9 5.6 24.4 5.8 26L6.3 26C6.5 24.9 6.7 23.8 6.9 22.7 6.2 22.3 6 20.9 6 19.5Z" fill="#B8C4C2"></path><path d="M7 22.8L7 22.8C6.3 22.4 6.1 20.9 6.1 19.6 6.3 17.3 6.3 15 6.3 12.6 6.2 11.4 6.3 1.5 6 0 6.2 0.5 6.4 1 6.7 1.4 7.4 2.6 10.3 4.2 11.7 10.3 12.8 16.6 9.5 21.1 7 22.8Z" fill="#12924F"></path></svg>
+                                  </span>
+                              </a>
+                          </div>
+                          <div class="mtop-title">
+                              <h4>mTop</h4>
+                          </div>
+                          <!--end logo-->
+                            <div class="nav-link">
+                                <a class=" btn btn-sm btn-soft-primary" href="#" role="button"><i class="fas fa-plus mr-2"></i>App V1</a>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+                <!-- end navbar-->
+            </div>
+            <!-- Top Bar End -->
+
+            <!-- Page Content-->
+            <div class="page-content">
+                <div class="container-fluid">
+                    <!-- Page-Title -->
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="page-title-box">
+                                <div class="row">
+                                    <div class="col">
+                                        <h4 class="page-title">Property Details</h4>
+                                        <ol class="breadcrumb">
+                                            <li class="breadcrumb-item"><a href="/mtop">Locations</a></li>
+                                            <li class="breadcrumb-item"><a href="/mtop?city={{propertyData[0].address.market}}">{{propertyData[0].address.market}}</a></li>
+                                            <li class="breadcrumb-item active">{{propertyData[0].property_type}}</li>
+                                        </ol>
+                                    </div><!--end col-->
+                                    <div class="col-auto align-self-center">
+                                        <a href="#" class="btn btn-sm btn-outline-primary" id="Dash_Date">
+                                            <span class="day-name" id="Day_Name">Today:</span>&nbsp;
+                                            <span class="" id="Select_date">Jan 11</span>
+                                            <i data-feather="calendar" class="align-self-center icon-xs ml-1"></i>
+                                        </a>
+                                        <a href="#" class="btn btn-sm btn-outline-primary">
+                                            <i data-feather="download" class="align-self-center icon-xs"></i>
+                                        </a>
+                                    </div><!--end col-->
+                                </div><!--end row-->
+                            </div><!--end page-title-box-->
+                        </div><!--end col-->
+                    </div><!--end row-->
+                    <!-- end page title end breadcrumb -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-lg-6 align-self-center">
+                                            <img src="{{propertyData[0].images.picture_url}}" alt="" height="300" class="mx-auto d-block">
+                                        </div><!--end col-->
+                                        <div class="col-lg-6 align-self-center">
+                                            <div class="single-pro-detail">
+                                                <p class="mb-1">{{propertyData[0].property_type}}</p>
+                                                <div class="custom-border mb-3"></div>
+                                                <h3 class="pro-title">{{propertyData[0].name}}</h3>
+                                                <p class="text-muted mb-0">{{propertyData[0].summary}}</p>
+                                                <!-- Location Rating -->
+                                                <p></p>
+                                                <div class="br-wrapper br-theme-fontawesome-stars-o">
+                                                  <select id="example-fontawesome" style="display: none;">
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4">4</option>
+                                                    <option value="5">5</option>
+                                                  </select>
+                                                  <div class="br-widget">
+                                                    <span class="h6"> Location Rating:</span> &nbsp;
+                                                    <a href="#" data-rating-value="1" data-rating-text="1" class="" id="mtop-score-loc-1"></a>
+                                                    <a href="#" data-rating-value="2" data-rating-text="2" class="" id="mtop-score-loc-2"></a>
+                                                    <a href="#" data-rating-value="3" data-rating-text="3" class="" id="mtop-score-loc-3"></a>
+                                                    <a href="#" data-rating-value="3" data-rating-text="3" class="" id="mtop-score-loc-4"></a>
+                                                    <a href="#" data-rating-value="3" data-rating-text="3" class="" id="mtop-score-loc-5"></a>
+                                                  </div>
+                                                </div>
+                                                <!-- Value Rating -->
+                                                <div class="br-wrapper br-theme-fontawesome-stars-o">
+                                                  <select id="example-fontawesome" style="display: none;">
+                                                    <option value="1">1</option>
+                                                    <option value="2">2</option>
+                                                    <option value="3">3</option>
+                                                    <option value="4">4</option>
+                                                    <option value="5">5</option>
+                                                  </select>
+                                                  <div class="br-widget">
+                                                    <span class="h6"> Value Rating:</span> &nbsp;
+                                                    <a href="#" data-rating-value="1" data-rating-text="1" class="" id="mtop-score-val-1"></a>
+                                                    <a href="#" data-rating-value="2" data-rating-text="2" class="" id="mtop-score-val-2"></a>
+                                                    <a href="#" data-rating-value="3" data-rating-text="3" class="" id="mtop-score-val-3"></a>
+                                                    <a href="#" data-rating-value="3" data-rating-text="3" class="" id="mtop-score-val-4"></a>
+                                                    <a href="#" data-rating-value="3" data-rating-text="3" class="" id="mtop-score-val-5"></a>
+                                                  </div>
+                                                </div>
+                                                <span class="h6" id="mtop-review-counter"></span> 
+                                                &nbsp; &nbsp; &nbsp; | &nbsp; &nbsp; &nbsp; 
+                                                <span class="h6" id="mtop-like-counter" class="mtop-like-counter">  
+                                                  <a href="#"><i class="far fa-heart text-muted font-18" title="Like this Property"></i></a>
+                                                  &nbsp; 0 like(s)
+                                                </span>
+                                                <ul class="list-inline mb-2 product-review" id="mtop-review-value"></ul>
+                                                <h2 class="pro-price">$ {{propertyData[0].price}}</h2>
+                                                <h6 class="text-muted font-13">Features :</h6>
+                                                <ul class="list-unstyled pro-features border-0">
+                                                    <li>Bedrooms: <b>{{propertyData[0].bedrooms}}</b></li>
+                                                    <li>Room Type: <b>{{propertyData[0].room_type}}</b></li>
+                                                    <li>Beds: <b>{{propertyData[0].beds}}</b></li>
+                                                    <li>Bathrooms: <b>{{propertyData[0].bathrooms}}</b></li>
+                                                </ul>
+                                            </div>
+                                        </div><!--end col-->
+                                    </div><!--end row-->
+                                </div><!--end card-body-->
+                            </div><!--end card-->
+                        </div><!--end col-->
+                    </div><!--end row-->
+
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="card">
+                               <div class="card-body">
+                                    <i data-feather="home" class="align-self-center"></i>
+                                    <h4 class="font-15 text-dark">Description</h4>
+                                    <p class="text-muted mb-0">{{propertyData[0].description}}</p>
+                                </div><!--end card-body-->
+                            </div><!--end card-->
+                        </div><!--end col-->
+                        <div class="col-lg-6">
+                            <div class="card">
+                               <div class="card-body">
+                                    <i data-feather="package" class="align-self-center"></i>
+                                    <h4 class="font-15 text-dark">Amenities</h4>
+                                    <div class="text-muted mb-0 single-pro-detail">
+                                      <ul class="list-unstyled pro-features border-0 amenities-list">
+                                         {% for amenity in propertyData[0].amenities %}
+                                          <li>{{amenity}}</li>
+                                        {% endfor %}
+                                      </ul>
+
+                                    </div>
+                                </div><!--end card-body-->
+                            </div><!--end card-->
+                        </div><!--end col-->
+                    </div><!--end row-->
+
+                    <div class="row">
+
+                      {% for property in similarProperties %}
+                        <div class="col-md-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div id="mtop-ribbon-{{loop.index}}"></div>
+                                    <img src="{{property.images.picture_url}}" alt="" class="d-block mx-auto my-4" height="150">
+                                    <div class="row my-4">
+                                        <div class="col">
+                                            <span class="badge badge-light mb-2">{{property.property_type}}</span>
+                                            <a href="#" class="title-text d-block">{{property.name}}</a>
+                                            <input type="hidden" id="mtop-rec-score-{{loop.index}}" name="mtop-rec-score-{{loop.index}}" value="{{property.scoreLoc}}"/>
+                                        </div>
+                                        <div class="col-auto">
+                                            <h4 class="text-dark mt-0">{{property.price}}</h4>
+                                            <div class="br-wrapper br-theme-fontawesome-stars-o">
+                                              <select id="example-fontawesome" style="display: none;">
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                <option value="5">5</option>
+                                              </select>
+                                              <div class="br-widget">
+                                                <a href="#" data-rating-value="1" data-rating-text="1" class="" id="mtop-rec-score-loc-1-{{loop.index}}"></a>
+                                                <a href="#" data-rating-value="2" data-rating-text="2" class="" id="mtop-rec-score-loc-2-{{loop.index}}"></a>
+                                                <a href="#" data-rating-value="3" data-rating-text="3" class="" id="mtop-rec-score-loc-3-{{loop.index}}"></a>
+                                                <a href="#" data-rating-value="3" data-rating-text="3" class="" id="mtop-rec-score-loc-4-{{loop.index}}"></a>
+                                                <a href="#" data-rating-value="3" data-rating-text="3" class="" id="mtop-rec-score-loc-5-{{loop.index}}"></a>
+                                              </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <a href="/viewProperty?id={{property._id}}" class="btn btn-soft-primary btn-block">View Property</a>
+                                </div><!--end card-body-->
+                            </div><!--end card-->
+                        </div><!--end col-->
+                        {% endfor %}
+
+                    </div><!--end row-->
+                </div><!-- container -->
+
+                <footer class="footer text-center text-sm-left">
+                    &copy; 2020 MongoDB <span class="d-none d-sm-inline-block float-right"></span>
+                </footer><!--end footer-->
+            </div>
+            <!-- end page content -->
+        </div>
+        <!-- end page-wrapper -->
+
+
+
+
+        <!-- jQuery  -->
+        <script src="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/js/jquery.min.js"></script>
+        <script src="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/js/bootstrap.bundle.min.js"></script>
+        <script src="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/js/metismenu.min.js"></script>
+        <script src="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/js/waves.js"></script>
+        <script src="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/js/feather.min.js"></script>
+        <script src="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/js/simplebar.min.js"></script>
+        <script src="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/js/moment.js"></script>
+        <script src="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/plugins/daterangepicker/daterangepicker.js"></script>
+
+        <script src="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/js/app.js"></script>
+
+        <script type="text/javascript">
+
+          //console.log({{similarProperties}});
+
+          var totalReviews = {{propertyData[0].review_count}};
+          var reviewLocation = {{propertyData[0].scoreLoc}};
+          var reviewValue = {{propertyData[0].scoreVal}};
+          var locationScore = 0;
+          var valueScore = 0;
+          if (reviewLocation > 0) { locationScore = reviewLocation / 2; }
+          if (reviewValue > 0 ) { valueScore = reviewValue / 2; }
+
+          console.log('===> Location Score: ' + locationScore + ' | Value Score: ' + valueScore);
+
+          function renderReviews(reviewType) {
+            // Add these classes to highlight star: br-selected br-current
+            var totalScore = 0;
+            var halfScore = false;
+            var htmloutput = "";
+            var returndiv = "";
+            if (reviewType === 'location') { totalScore = locationScore; returndiv = "#mtop-score-loc-";}
+            else { totalScore = valueScore; returndiv = "#mtop-score-val-"; }
+            var decNum = totalScore % 1 != 0;
+            if (decNum > 0) { halfScore = true; }
+
+            // Step 1: fill as many full stars as needed
+            for (var x = 1; x <= totalScore; x++) {
+              if (totalScore > x - 1) { $(returndiv + x).addClass("br-selected") }
+            }
+            // Step 2: fill the gap between totalScore and 5 (stars)
+            if (halfScore) {
+              //for (var x = totalScore; x <= 5; x++) {
+              //  console.log("Checking half score for " + x);
+                $(returndiv + Math.round(totalScore)).addClass("br-fractional br-fractional-50")
+              //}
+            }
+
+            htmloutput += totalReviews + " reviews";
+            $("#mtop-review-counter").html(htmloutput);
+          }
+
+          function renderAdditionalReviews(){
+            var divprefix = "#mtop-rec-score-";
+            var thisdiv = "";
+            var thisScore = 0;
+            var halfScore = false;
+            for (var x = 1; x < 5; x++) {
+              halfScore = false;
+              thisdiv = $(divprefix + x).val();
+              if (thisdiv > 0)
+                { thisScore = thisdiv / 2;
+                  var decNum = thisScore % 1 != 0;
+                  if (decNum > 0) { halfScore = true; }
+                }
+              for(var i = 1; i <= thisScore; i++) {
+                if (thisScore > i - 1)
+                  {
+                    var stardiv = "#mtop-rec-score-loc-" + i + "-" + x;
+                    $(stardiv).addClass("br-selected")
+                  }
+              }
+              if (halfScore) {
+                  var stardiv = "#mtop-rec-score-loc-" + Math.round(thisScore) + "-" + x;
+                  $(stardiv).addClass("br-fractional br-fractional-50")
+              }
+            }
+          }
+
+          function renderRibbons(){
+            var ribbonList = [
+                "<div class='ribbon1 rib1-primary'><span class='text-white text-center rib1-primary'>39% off</span></div>",
+                "<div class='ribbon4 rib4-secondary'><span class='ribbon4-band ribbon4-band-secondary text-white text-center'>48% off</span></div>",
+                "<div class='ribbon1 rib1-primary'><span class='text-white text-center rib1-primary'>52% off</span></div>",
+                "<div class='ribbon4 rib4-secondary'><span class='ribbon4-band ribbon4-band-secondary text-white text-center'>29% off</span></div>",
+                "<div class='ribbon1 rib1-primary'><span class='text-white text-center rib1-primary'>43% off</span></div>",
+                "<div class='ribbon4 rib4-secondary'><span class='ribbon4-band ribbon4-band-secondary text-white text-center'>25% off</span></div>",
+                "<div class='ribbon1 rib1-primary'><span class='text-white text-center rib1-primary'>40% off</span></div>",
+                "<div class='ribbon4 rib4-secondary'><span class='ribbon4-band ribbon4-band-secondary text-white text-center'>60% off</span></div>"
+              ];
+              for (var x = 0; x < 5; x++) {
+                var rand = Math.round(Math.random() * 6 + 1);
+                var div = "#mtop-ribbon-" + x;
+                var ribbon = ribbonList[rand];
+                console.log('---> setting this div: ' + div + ' with this ribbon: ' + ribbon + ' random: ' + rand);
+                $(div).html(ribbon);
+              }
+
+          }
+
+
+
+
+          $(document).ready(function() {
+            renderReviews('location');
+            renderReviews('value');
+            renderAdditionalReviews();
+            renderRibbons();
+          });
+
+
+        </script>
+
+
+    </body>
+
+</html>
