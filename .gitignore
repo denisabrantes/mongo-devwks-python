@@ -8,6 +8,7 @@ home/.DS_Store
 home/templates/.DS_Store
 propertyView/.DS_Store
 propertyView/templates/.DS_Store
+static/.DS_Store
 
 # C extensions
 *.so
