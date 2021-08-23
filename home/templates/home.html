@@ -356,14 +356,14 @@
                               <div style="display:flex;">
                                 <span class="h4 mtop-search-results-title">
                                   Browse Search Results
-                                  &nbsp;<span id="pagination-current">(1-10 of {{searchMetadata[0].totalRecords}})</span>
+                                  &nbsp;<span>(<span id="pagination-current">1-10</span> of {{searchMetadata[0].totalRecords}})</span>
                                 </span>
                                 <nav aria-label="Search Result Pagination">
                                   <ul class="pagination" id="pagination"></ul><!--end pagination-->
                               </nav>
                               </div>
                               <div id="mtop-location-list">
-                                {% for property in propertyList[0].properties %}
+                                {% for property in propertyList[1].properties %}
                                   <div class="property-panel" id="property-panel-{{loop.index}}">
                                     <div class="col-md-12">
                                         <div class="card">
@@ -470,10 +470,9 @@
         <script src="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/js/simplebar.min.js"></script>
         <script src="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/bootstrap/assets/js/moment.js"></script>
         <script src="https://realm-sandbox-odjna-ulcsw.mongodbstitch.com/plugins/daterangepicker/daterangepicker.js"></script>
-
         <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
 
-        <script type="text/javascript">
+        <script type="text/javascript" charset="utf-8">
           var totalPages = {{searchMetadata[0].totalPages}};
           var totalRecords = {{searchMetadata[0].totalRecords}};
           var coordinates = {{searchMetadata[0].coordinates}};
@@ -492,7 +491,7 @@
           map.addLayer(layer);
 
           i = 0
-          {% for property in propertyList[0].properties %}
+          {% for property in propertyList[0].coordinates %}
             i = i + 1
             var coordinates = {{property.address.location.coordinates}}
             var popUpPanel = "<strong>{{property.name}}</strong>";
@@ -539,17 +538,88 @@
           }
 
           function loadPage(pageNumber) {
-            // Page 1: 1-10, Page 2: 11-20, Page 3:20-30, Page 4: 30-40
-            var end = pageNumber * 10;
-            var initial = (end - 10) + 1;
-            if (initial === 0 ) { initial = 1; }
-            if (end > totalRecords) { end = totalRecords; }
-            hideAllPanels();
-            slidePropertyPanels(initial, end);
-            renderPagination(pageNumber);
+            var coordinates = {{searchMetadata[0].coordinates}};
+            var pricefrom = {{searchMetadata[0].pricefrom}};
+            var priceto = {{searchMetadata[0].priceto}};
+            var amenities = "{{searchMetadata[0].amenities}}";
 
-            var counterhtml = "(" + initial + "-" + end + " of " + totalRecords + ")";
-            $("#pagination-current").html(counterhtml);
+            var url = '';
+            url += 'http://' + document.domain + ':' + location.port + '/mtop/loadPage?pagenum=' + pageNumber;
+            url += '&coordinates=' + coordinates + '&pricefrom=' + pricefrom + '&priceto=' + priceto;
+            url += '&amenities=' + amenities;
+
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function(result) {
+                    //console.log("===> AJAX CALL RESULT: " + JSON.stringify(result));
+                    var propertyData = result.data[0];
+                    refreshPropertyList(propertyData, pageNumber);
+                },
+                error: function(result) {
+                    console.log("===> AJAX CALL ERROR: " + JSON.stringify(result));
+                }
+            });
+
+          }
+
+          function refreshPropertyList(propertyData, pageNumber) {
+           var htmloutput = "";
+
+           // Page 1: 1-10, Page 2: 11-20, Page 3:20-30, Page 4: 30-40
+           var end = pageNumber * 10;
+           var initial = (end - 10) + 1;
+           if (initial === 0 ) { initial = 1; }
+           if (end > totalRecords) { end = totalRecords; }
+           var x = initial;
+
+            for (var y = 0; y < propertyData.length; y++) {
+              var thisProperty = propertyData[y];
+              htmloutput += "<div class='property-panel' id='property-panel-" + x + "'>\n";
+              htmloutput += "  <div class='col-md-12'>\n";
+              htmloutput += "    <div class='card'>\n";
+              htmloutput += "      <div class='card-body'>\n";
+              htmloutput += "        <div class='ribbon1 rib1-success'>\n";
+              htmloutput += "          <span class='text-white text-center rib1-success'>" + thisProperty.price + "</span>\n";
+              htmloutput += "        </div><!--end ribbon-->\n";
+              htmloutput += "        <div class='row'>\n";
+              htmloutput += "          <div class='col-auto mtop-property-panel-thumb'>\n";
+              htmloutput += "            <img src='" + thisProperty.images.picture_url + "' alt='Property' height='150' class='mtop-thumb'>\n";
+              htmloutput += "            <a href='#' onmouseover='javascript:toggleIcon(" + x + ",true);' onmouseout='javascript:toggleIcon(" + x + ",false)'>\n";
+              htmloutput += "              <div class='mtop-property-panel-thumb-panel-bg'></div>\n";
+              htmloutput += "              <div class='mtop-property-panel-thumb-panel'>\n";
+              htmloutput += "                <div class='thumb-number-icon' id='mtop-map-icon-" + x + "'>" + x + "</div>\n";
+              htmloutput += "              </div>\n";
+              htmloutput += "            </a>\n";
+              htmloutput += "          </div><!--end col-->\n";
+              htmloutput += "          <div class='col align-self-center'>\n";
+              htmloutput += "            <p class='font-18 font-weight-semibold mb-2'>" + thisProperty.name + "</p>\n";
+              htmloutput += "            <p class='text-muted property-panel-text'>" + thisProperty.summary + "</p>\n";
+              htmloutput += "            <div class='mtop-link-panel'>\n";
+              htmloutput += "              <div class='mtop-link-panel-item'><a href='/viewProperty?id=" + thisProperty._id + "' class='btn btn-info btn-sm'>View Property</a></div>\n";
+              htmloutput += "              <div class='mtop-link-panel-item'><a href='#' class='btn btn-success btn-sm' data-toggle='modal' data-target='#booknowModal'>Book Now</a></div>\n";
+              htmloutput += "              <div class='mtop-link-panel-item number-demo-content'> " + thisProperty.beds + "\n";
+              htmloutput += "                <i class='fas fa-bed icon-demo-content' title='Beds'></i>\n";
+              htmloutput += "              </div>\n";
+              htmloutput += "              <div class='mtop-link-panel-item number-demo-content'> " + thisProperty.accommodates + "\n";
+              htmloutput += "                <i class='fas fa-user-friends icon-demo-content' title='Accommodates'></i>\n";
+              htmloutput += "              </div>\n";     
+              htmloutput += "              <div class='mtop-link-panel-item number-demo-content'> " + thisProperty.bathrooms + "\n";
+              htmloutput += "                <i class='fas fa-bath icon-demo-content' title='Bathrooms'></i>\n";
+              htmloutput += "              </div>\n";                          
+              htmloutput += "            </div>\n";
+              htmloutput += "          </div><!--end col-->\n";
+              htmloutput += "        </div> <!--end row-->\n";
+              htmloutput += "      </div><!--end card-body-->\n";
+              htmloutput += "    </div><!--end card-->\n";
+              htmloutput += "  </div>\n";
+              htmloutput += "</div>\n";
+              x++;
+            }
+            
+            $("#mtop-location-list").html(htmloutput);
+            $("#pagination-current").html(initial + '-' + end);
+            renderPagination(pageNumber);
           }
 
           function renderPagination(currentPage) {
